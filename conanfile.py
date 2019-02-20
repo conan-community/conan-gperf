@@ -7,25 +7,16 @@ from conans import ConanFile, tools, AutoToolsBuildEnvironment
 class GperfConan(ConanFile):
     name = "gperf"
     version = "3.1"
-    license = "GNU GPL v4"
+    license = "GPL-3.0"
     url = "https://github.com/conan-community/conan-gperf"
-    homepage = "https://www.gnu.org/software/gperf/"
+    homepage = "https://www.gnu.org/software/gperf"
     description = "GNU gperf is a perfect hash function generator"
     topics = ("conan", "gperf", "hash-generator", "hash")
     author = "Conan Community"
-    settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {"shared": False, "fPIC": True}
+    settings = "os_build", "arch_build", "compiler"
     exports = "LICENSE.md"
     _source_subfolder = "source_subfolder"
     _autotools = None
-
-    def config_options(self):
-        if self.settings.os == "Windows":
-            del self.options.fPIC
-
-    def configure(self):
-        del self.settings.compiler.libcxx
 
     @property
     def _is_msvc(self):
@@ -33,27 +24,21 @@ class GperfConan(ConanFile):
 
     @property
     def _is_mingw_windows(self):
-        return self.settings.os == "Windows" and self.settings.compiler == "gcc" and os.name == "nt"
+        return self.settings.os_build == "Windows" and self.settings.compiler == "gcc" and os.name == "nt"
 
     def build_requirements(self):
-        if self.settings.os == "Windows":
+        if self.settings.os_build == "Windows":
             self.build_requires("cygwin_installer/2.9.0@bincrafters/stable")
 
     def source(self):
-        tools.get("http://ftp.gnu.org/pub/gnu/gperf/gperf-{}.tar.gz".format(self.version))
+        sha256 = "588546b945bba4b70b6a3a616e80b4ab466e3f33024a352fc2198112cdbb3ae2"
+        tools.get("https://ftp.gnu.org/pub/gnu/gperf/gperf-{}.tar.gz".format(self.version), sha256=sha256)
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def _configure_autotools(self):
         if not self._autotools:
             args = []
-            if self.options.shared:
-                args.extend(["--enable-shared", "--disable-static"])
-            else:
-                args.extend(["--enable-static", "--disable-shared"])
-            if self.settings.build_type == "Debug":
-                args.append("--enable-debug")
-
             cwd = os.getcwd()
             win_bash = self._is_msvc or self._is_mingw_windows
             if self._is_msvc:
@@ -86,9 +71,14 @@ class GperfConan(ConanFile):
             self._build_configure()
 
     def package(self):
+        self.copy("COPYING", dst="licenses", src=self._source_subfolder)
         with tools.chdir(self._source_subfolder):
             autotools = self._configure_autotools()
             autotools.install()
+        tools.rmdir(os.path.join(self.package_folder, "share"))
+
+    def package_id(self):
+        del self.info.settings.compiler
 
     def package_info(self):
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
