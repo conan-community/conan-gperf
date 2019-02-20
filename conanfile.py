@@ -5,7 +5,7 @@ from conans import ConanFile, tools, AutoToolsBuildEnvironment
 
 
 class GperfConan(ConanFile):
-    name = "gperf"
+    name = "gperf_installer"
     version = "3.1"
     license = "GPL-3.0"
     url = "https://github.com/conan-community/conan-gperf"
