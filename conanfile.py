@@ -33,7 +33,7 @@ class GperfConan(ConanFile):
     def source(self):
         sha256 = "588546b945bba4b70b6a3a616e80b4ab466e3f33024a352fc2198112cdbb3ae2"
         tools.get("https://ftp.gnu.org/pub/gnu/gperf/gperf-{}.tar.gz".format(self.version), sha256=sha256)
-        extracted_dir = self.name + "-" + self.version
+        extracted_dir = "gperf-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
 
     def _configure_autotools(self):
