@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from bincrafters import build_template_installer, build_shared
+from cpt.packager import ConanMultiPackager
 import os
+import platform
 
 if __name__ == "__main__":
 
     arch = os.environ["ARCH"]
-    builder = build_template_installer.get_builder()
-    builder.add({"os" : build_shared.get_os(), "arch_build" : arch, "arch": arch}, {}, {}, {})
+    builder = ConanMultiPackager()
+    builder.add({"os" : platform.system().replace("Darwin", "Macos"), "arch_build" : arch, "arch": arch}, {}, {}, {})
     builder.run()
