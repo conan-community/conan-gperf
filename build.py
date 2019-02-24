@@ -1,8 +1,12 @@
-
-from conan.packager import ConanMultiPackager
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from cpt.packager import ConanMultiPackager
+import os
+import platform
 
 if __name__ == "__main__":
+
+    arch = os.environ["ARCH"]
     builder = ConanMultiPackager()
-    builder.add_common_builds(shared_option_name="gperf:shared", pure_c=True)
+    builder.add({"os" : platform.system().replace("Darwin", "Macos"), "arch_build" : arch, "arch": arch}, {}, {}, {})
     builder.run()
